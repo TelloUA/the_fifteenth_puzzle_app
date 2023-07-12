@@ -110,24 +110,27 @@ public class Tile extends Pane {
         return a;
     }
 
-    public void moveTile() {
+    public boolean moveTile() {
         // System.out.println("Empty " + ep[0] + "-" + ep[1] + "\nTile " + this.position[0] + "-" + this.position[1]);
+        boolean isMoved = false;
         if (this.position[0] == ep[0] && this.position[1] == ep[1] + step) {
-            setupNewOldPosition();
+            isMoved = setupNewOldPosition();
         } else if (this.position[0] == ep[0] && this.position[1] == ep[1] - step) {
-            setupNewOldPosition();
+            isMoved = setupNewOldPosition();
         } else if (this.position[1] == ep[1] && this.position[0] == ep[0] + step) {
-            setupNewOldPosition();
+            isMoved = setupNewOldPosition();
         } else if (this.position[1] == ep[1] && this.position[0] == ep[0] - step) {
-            setupNewOldPosition();
+            isMoved = setupNewOldPosition();
         }
+        return isMoved;
     }
 
-    private void setupNewOldPosition () {
+    private boolean setupNewOldPosition () {
         byte[] previous = new byte[] {this.position[0], this.position[1]};
         GridPane.setConstraints(this.visual, Tile.ep[1], Tile.ep[0]);
         this.setPosition(ep[0], ep[1]);
         ep = previous;
+        return true;
     }
 
     public static LinkedList<String> getNeighbor (Tile[] data) {
