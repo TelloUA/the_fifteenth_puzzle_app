@@ -7,6 +7,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.layout.*;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import java.util.LinkedList;
 import java.util.Optional;
@@ -15,6 +16,9 @@ public class Main extends Application {
 
     static Tile[] tiles_scope;
     static Tile[] tiles_win;
+    public static boolean isCountingMode;
+    public static int countTimes;
+    public static Text showCountTimes;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -26,8 +30,8 @@ public class Main extends Application {
         setupName(tiles_win);
         setupPosition(tiles_win);
         Tile.ep = new byte[]{3, 3};
-        //Random moves when game start
-        randomize(tiles_scope, 30);
+        showCountTimes = new Text();
+        setupNewGame();
 
         //Main visual block with button
         VBox buttons_pane = new VBox();
@@ -37,6 +41,8 @@ public class Main extends Application {
         buttons_pane.getChildren().add(newGame);
         buttons_pane.getChildren().add(changeForm);
         buttons_pane.getChildren().add(closeGame);
+        buttons_pane.getChildren().add(showCountTimes);
+        buttons_pane.setMinWidth(150); //temporary, need investigate
 
         //Button events
         closeGame.setOnAction(event -> {
@@ -44,7 +50,7 @@ public class Main extends Application {
         });
 
         newGame.setOnAction(event -> {
-            randomize(tiles_scope, 30);
+            setupNewGame();
         });
 
         changeForm.setOnAction(event -> {
@@ -58,7 +64,7 @@ public class Main extends Application {
         all_pane.setLeft(print_square(tiles_scope));
         all_pane.setRight(buttons_pane);
 
-        Scene scene = new Scene(all_pane, 500, 400);
+        Scene scene = new Scene(all_pane, 530, 400);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -93,27 +99,62 @@ public class Main extends Application {
         return (int) (Math.random() * max);
     }
 
+    public static void setupNewGame(){
+        //Random moves when game start
+        randomize(tiles_scope, 30);
+        setupCountingMode();
+        showCountTimes.setText(countString(countTimes));
+    }
+
+    public static void setupCountingMode(){
+        isCountingMode = true;
+        countTimes = 30;
+    }
+
+    public static String countString(int countTimes) {
+        return "Steps left - " + countTimes;
+    }
+
     //Move action + check win + win popup
-    private static void handleRectangleClick(Tile tile) {
-        tile.moveTile();
-        if (checkWin(tiles_scope, tiles_win)) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+    public static void handleRectangleClick(Tile tile) {
+        boolean isMoved = tile.moveTile();
+        if (isCountingMode && isMoved) {
+            countTimes--;
+            if (countTimes == -1) {
+                endingAlert(false);
+            } else {
+                showCountTimes.setText(countString(countTimes));
+            }
+            if (checkWin(tiles_scope, tiles_win)) {
+                endingAlert(true);
+            }
+        }
+    }
+    public static void endingAlert(boolean win) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        if (win) {
             alert.setTitle("Win!");
             alert.setHeaderText("Wow, You win!");
-
-            ButtonType newGame = new ButtonType("Start new game");
-            ButtonType cancelButton = new ButtonType("Cancel");
-            alert.getButtonTypes().setAll(newGame, cancelButton);
-            alert.setOnCloseRequest(event -> {
-                Optional<ButtonType> result = Optional.ofNullable(alert.getResult());
-                if (result.isPresent()) {
-                    if (result.get() == newGame) {
-                        randomize(tiles_scope, 30);
-                    }
-                }
-            });
-            alert.showAndWait();
+        } else {
+            alert.setTitle("Lose :(");
+            alert.setHeaderText("Next time will be better!");
         }
+
+        ButtonType newGame = new ButtonType("Start new game");
+        ButtonType cancelButton = new ButtonType("Cancel");
+        alert.getButtonTypes().setAll(newGame, cancelButton);
+        alert.setOnCloseRequest(event -> {
+            Optional<ButtonType> result = Optional.ofNullable(alert.getResult());
+            if (result.isPresent()) {
+                if (result.get() == newGame) {
+                    setupNewGame();
+                } else if (result.get() == cancelButton) {
+                    isCountingMode = false;
+                    showCountTimes.setText("Free mode");
+                }
+            }
+        });
+        alert.showAndWait();
     }
 
     public static void setupName (Tile[] data) {
