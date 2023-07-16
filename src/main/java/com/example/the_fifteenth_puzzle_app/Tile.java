@@ -23,6 +23,8 @@ public class Tile extends Pane {
     public static int[] emptyPos; //empty_position
     private static final int STEP = 1;
     private boolean isHeart;
+
+    //small duration, because have bug with fast click
     private static final Duration ANIMATION_DURATION = Duration.millis(200);
     private static final int BLOCK_SIZE = 100;
 
@@ -116,8 +118,8 @@ public class Tile extends Pane {
         return t;
     }
 
-    public boolean moveTile() {
-        System.out.println("Empty " + emptyPos[0] + "-" + emptyPos[1] + "\nnum" + this.name + " " + this.position[0] + "-" + this.position[1]);
+    public boolean moveTile(boolean isRandomize) {
+        System.out.println("Empty " + emptyPos[0] + "-" + emptyPos[1] + ", Num" + this.name + " " + this.position[0] + "-" + this.position[1]);
         //System.out.println("In moveTile()");
 
         boolean isMoved = false;
@@ -126,33 +128,37 @@ public class Tile extends Pane {
         if (this.position[0] == emptyPos[0] && this.position[1] == emptyPos[1] + STEP) { //y- (up)
             moveDir = new int[]{0, -1};
             dir = "up";
-            isMoved = this.setupNewOldPosition(moveDir, dir);
+            isMoved = this.setupNewOldPosition(moveDir, dir, isRandomize);
         } else if (this.position[0] == emptyPos[0] && this.position[1] == emptyPos[1] - STEP) { //y+ (down)
             moveDir = new int[]{0, 1};
             dir = "down";
-            isMoved = this.setupNewOldPosition(moveDir, dir);
+            isMoved = this.setupNewOldPosition(moveDir, dir, isRandomize);
         } else if (this.position[1] == emptyPos[1] && this.position[0] == emptyPos[0] + STEP) { //x- (left)
             moveDir = new int[]{-1, 0};
             dir = "left";
-            isMoved = this.setupNewOldPosition(moveDir, dir);
+            isMoved = this.setupNewOldPosition(moveDir, dir, isRandomize);
         } else if (this.position[1] == emptyPos[1] && this.position[0] == emptyPos[0] - STEP) { //x+ (right)
             moveDir = new int[]{1, 0};
             dir = "right";
-            isMoved = this.setupNewOldPosition(moveDir, dir);
+            isMoved = this.setupNewOldPosition(moveDir, dir, isRandomize);
         }
         System.out.println("In moveTile(), " + isMoved);
         return isMoved;
     }
 
-    private boolean setupNewOldPosition (int[] moveDir, String dir) {
+    private boolean setupNewOldPosition (int[] moveDir, String dir, boolean isRandomize) {
         int[] previous = new int[] {this.position[0], this.position[1]};
         System.out.println("moveDir - " + moveDir[0] + ", " + moveDir[1] + " - " + dir);
-
-        GridPane.setConstraints(this.visual, Tile.emptyPos[0], Tile.emptyPos[1]);
-        //this.moveVisualTo(moveDir[0], moveDir[1]);
+        if (isRandomize) {
+            //old moves with setConstraints, didn't work with animation
+            GridPane.setConstraints(this.visual, Tile.emptyPos[0], Tile.emptyPos[1]);
+            //System.out.println("Current - " + GridPane.getColumnIndex(this.visual) + "-" + GridPane.getRowIndex(this.visual));
+        } else {
+            this.moveVisualTo(moveDir[0], moveDir[1]);
+        }
         this.setPosition(emptyPos[0], emptyPos[1]);
-
         emptyPos = previous;
+        System.out.println("Empty " + emptyPos[0] + "-" + emptyPos[1] + ", Num" + this.name + " " + this.position[0] + "-" + this.position[1]);
         return true;
     }
 

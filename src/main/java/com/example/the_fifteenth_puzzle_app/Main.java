@@ -32,7 +32,6 @@ public class Main extends Application {
         setupPosition(tiles_win);
         Tile.emptyPos = new int[]{3, 3};
         showCountTimes = new Text();
-        setupNewGame();
 
         //Main visual block with button
         VBox buttons_pane = new VBox();
@@ -64,6 +63,7 @@ public class Main extends Application {
         BorderPane all_pane = new BorderPane();
         all_pane.setLeft(print_square(tiles_scope));
         all_pane.setRight(buttons_pane);
+        setupNewGame();
 
         Scene scene = new Scene(all_pane, 530, 400);
         primaryStage.setScene(scene);
@@ -93,8 +93,8 @@ public class Main extends Application {
             new Tile();
             Tile r_tile_obj;
             r_tile_obj = Tile.getTile(data, r_tile_name);
-            System.out.println(r_tile_obj.name);
-            isMoved = r_tile_obj.moveTile();
+            System.out.println("Randomize " + r_tile_obj.name);
+            isMoved = r_tile_obj.moveTile(true);
             //System.out.println(isMoved);
         }
     }
@@ -105,13 +105,13 @@ public class Main extends Application {
 
     public static void setupNewGame(){
         //Random moves when game start
-        randomize(tiles_scope, 1); // !!! TEMPORARY
+        randomize(tiles_scope, 50); // !!! TEMPORARY
         setupCountingMode();
         showCountTimes.setText(countString(countTimes));
     }
 
     public static void setupCountingMode(){
-        isCountingMode = false; // !!! TEMPORARY
+        isCountingMode = true; // !!! TEMPORARY
         countTimes = 30;
     }
 
@@ -121,7 +121,7 @@ public class Main extends Application {
 
     //Move action + check win + win popup
     public static void handleRectangleClick(Tile tile) {
-        boolean isMoved = tile.moveTile();
+        boolean isMoved = tile.moveTile(false);
 
         if (isCountingMode && isMoved) {
             countTimes--;
@@ -189,6 +189,7 @@ public class Main extends Application {
     }
 
     //Adding tiles inside their positions, add click
+    //This work this with GridPane .add(), but its only for initial setup, moves work with another methods
     public static GridPane print_square (Tile[] data) {
         GridPane pane = new GridPane();
         for (int i = 0; i < 4; i++) {
@@ -198,6 +199,7 @@ public class Main extends Application {
         for (int i = 0; i < data.length; i++) {
             Tile tile = data[i];
             pane.add(tile.visual, tile.position[0], tile.position[1]);
+            System.out.println("Current - " + GridPane.getColumnIndex(tile.visual) + "-" + GridPane.getRowIndex(tile.visual));
             int finalI = i;
             data[i].visual.setOnMouseClicked(event -> handleRectangleClick(data[finalI]));
         }
