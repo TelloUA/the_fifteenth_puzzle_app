@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 import java.util.LinkedList;
 import java.util.Optional;
 
+
 public class Main extends Application {
 
     static Tile[] tiles_scope;
@@ -29,7 +30,7 @@ public class Main extends Application {
         setupPosition(tiles_scope);
         setupName(tiles_win);
         setupPosition(tiles_win);
-        Tile.ep = new byte[]{3, 3};
+        Tile.emptyPos = new int[]{3, 3};
         showCountTimes = new Text();
         setupNewGame();
 
@@ -86,12 +87,15 @@ public class Main extends Application {
         for (int i = 0; i < comp; i++) {
             LinkedList<String> neighbors = Tile.getNeighbor(data);
             String r_tile_name;
+            boolean isMoved;
             int num = rnd(neighbors.size());
             r_tile_name = neighbors.get(num);
             new Tile();
             Tile r_tile_obj;
             r_tile_obj = Tile.getTile(data, r_tile_name);
-            r_tile_obj.moveTile();
+            System.out.println(r_tile_obj.name);
+            isMoved = r_tile_obj.moveTile();
+            //System.out.println(isMoved);
         }
     }
 
@@ -101,13 +105,13 @@ public class Main extends Application {
 
     public static void setupNewGame(){
         //Random moves when game start
-        randomize(tiles_scope, 30);
+        randomize(tiles_scope, 1); // !!! TEMPORARY
         setupCountingMode();
         showCountTimes.setText(countString(countTimes));
     }
 
     public static void setupCountingMode(){
-        isCountingMode = true;
+        isCountingMode = false; // !!! TEMPORARY
         countTimes = 30;
     }
 
@@ -118,6 +122,7 @@ public class Main extends Application {
     //Move action + check win + win popup
     public static void handleRectangleClick(Tile tile) {
         boolean isMoved = tile.moveTile();
+
         if (isCountingMode && isMoved) {
             countTimes--;
             if (countTimes == -1) {
@@ -130,6 +135,12 @@ public class Main extends Application {
             }
         }
     }
+
+    public static void animation (Tile tile) {
+
+    }
+
+
     public static void endingAlert(boolean win) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         if (win) {
@@ -171,9 +182,9 @@ public class Main extends Application {
 
     public static void setupPosition (Tile[] data) {
         for (int i = 0; i < data.length; i++) {
-            byte a = (byte) (i / 4);
-            byte b = (byte) (i % 4);
-            data[i].setPosition(a, b);
+            int y = (i / 4);
+            int x = (i % 4);
+            data[i].setPosition(x, y);
         }
     }
 
@@ -184,12 +195,14 @@ public class Main extends Application {
             pane.getColumnConstraints().add(new ColumnConstraints(100));
             pane.getRowConstraints().add(new RowConstraints(100));
         }
-        for (byte i = 0; i < data.length; i++) {
-            Tile heart = data[i];
-            pane.add(heart.visual, heart.position[1], heart.position[0]);
-            byte finalI = i;
+        for (int i = 0; i < data.length; i++) {
+            Tile tile = data[i];
+            pane.add(tile.visual, tile.position[0], tile.position[1]);
+            int finalI = i;
             data[i].visual.setOnMouseClicked(event -> handleRectangleClick(data[finalI]));
         }
         return pane;
     }
+
+    // animation move here
 }
