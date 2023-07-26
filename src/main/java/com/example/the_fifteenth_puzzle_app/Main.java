@@ -93,8 +93,8 @@ public class Main extends Application {
             new Tile();
             Tile r_tile_obj;
             r_tile_obj = Tile.getTile(data, r_tile_name);
-            System.out.println("Randomize " + r_tile_obj.name);
-            isMoved = r_tile_obj.moveTile(true);
+            //System.out.println("Randomize " + r_tile_obj.name);
+            isMoved = r_tile_obj.moveTile();
             //System.out.println(isMoved);
         }
     }
@@ -105,13 +105,14 @@ public class Main extends Application {
 
     public static void setupNewGame(){
         //Random moves when game start
-        randomize(tiles_scope, 50); // !!! TEMPORARY
+        randomize(tiles_scope, 30);
         setupCountingMode();
         showCountTimes.setText(countString(countTimes));
     }
 
     public static void setupCountingMode(){
-        isCountingMode = true; // !!! TEMPORARY
+        //enable counting mode in new game
+        isCountingMode = true;
         countTimes = 30;
     }
 
@@ -121,7 +122,7 @@ public class Main extends Application {
 
     //Move action + check win + win popup
     public static void handleRectangleClick(Tile tile) {
-        boolean isMoved = tile.moveTile(false);
+        boolean isMoved = tile.moveTile();
 
         if (isCountingMode && isMoved) {
             countTimes--;
@@ -135,11 +136,6 @@ public class Main extends Application {
             }
         }
     }
-
-    public static void animation (Tile tile) {
-
-    }
-
 
     public static void endingAlert(boolean win) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -199,7 +195,7 @@ public class Main extends Application {
         for (int i = 0; i < data.length; i++) {
             Tile tile = data[i];
             pane.add(tile.visual, tile.position[0], tile.position[1]);
-            System.out.println("Current - " + GridPane.getColumnIndex(tile.visual) + "-" + GridPane.getRowIndex(tile.visual));
+            //System.out.println("Current - " + GridPane.getColumnIndex(tile.visual) + "-" + GridPane.getRowIndex(tile.visual));
             int finalI = i;
             data[i].visual.setOnMouseClicked(event -> handleRectangleClick(data[finalI]));
         }

@@ -1,5 +1,6 @@
 package com.example.the_fifteenth_puzzle_app;
 
+import javafx.animation.PauseTransition;
 import javafx.animation.TranslateTransition;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -118,50 +119,38 @@ public class Tile extends Pane {
         return t;
     }
 
-    public boolean moveTile(boolean isRandomize) {
-        System.out.println("Empty " + emptyPos[0] + "-" + emptyPos[1] + ", Num" + this.name + " " + this.position[0] + "-" + this.position[1]);
-        //System.out.println("In moveTile()");
-
+    public boolean moveTile() {
+        //System.out.println("Empty " + emptyPos[0] + "-" + emptyPos[1] + ", Num" + this.name + " " + this.position[0] + "-" + this.position[1]);
         boolean isMoved = false;
-        int[] moveDir;
-        String dir;
+
         if (this.position[0] == emptyPos[0] && this.position[1] == emptyPos[1] + STEP) { //y- (up)
-            moveDir = new int[]{0, -1};
-            dir = "up";
-            isMoved = this.setupNewOldPosition(moveDir, dir, isRandomize);
+            isMoved = this.setupNewOldPosition();
         } else if (this.position[0] == emptyPos[0] && this.position[1] == emptyPos[1] - STEP) { //y+ (down)
-            moveDir = new int[]{0, 1};
-            dir = "down";
-            isMoved = this.setupNewOldPosition(moveDir, dir, isRandomize);
+            isMoved = this.setupNewOldPosition();
         } else if (this.position[1] == emptyPos[1] && this.position[0] == emptyPos[0] + STEP) { //x- (left)
-            moveDir = new int[]{-1, 0};
-            dir = "left";
-            isMoved = this.setupNewOldPosition(moveDir, dir, isRandomize);
+            isMoved = this.setupNewOldPosition();
         } else if (this.position[1] == emptyPos[1] && this.position[0] == emptyPos[0] - STEP) { //x+ (right)
-            moveDir = new int[]{1, 0};
-            dir = "right";
-            isMoved = this.setupNewOldPosition(moveDir, dir, isRandomize);
+            isMoved = this.setupNewOldPosition();
         }
-        System.out.println("In moveTile(), " + isMoved);
+        //System.out.println("In moveTile(), " + isMoved);
+        //System.out.println("-----------------------");
         return isMoved;
     }
 
-    private boolean setupNewOldPosition (int[] moveDir, String dir, boolean isRandomize) {
+    private boolean setupNewOldPosition () {
+        //save positions before move to give this position to empty tile
         int[] previous = new int[] {this.position[0], this.position[1]};
-        System.out.println("moveDir - " + moveDir[0] + ", " + moveDir[1] + " - " + dir);
-        if (isRandomize) {
-            //old moves with setConstraints, didn't work with animation
-            GridPane.setConstraints(this.visual, Tile.emptyPos[0], Tile.emptyPos[1]);
-            //System.out.println("Current - " + GridPane.getColumnIndex(this.visual) + "-" + GridPane.getRowIndex(this.visual));
-        } else {
-            this.moveVisualTo(moveDir[0], moveDir[1]);
-        }
+        //old moves with setConstraints on picture, didn't work with animation
+        GridPane.setConstraints(this.visual, Tile.emptyPos[0], Tile.emptyPos[1]);
+        //System.out.println("Current - " + GridPane.getColumnIndex(this.visual) + "-" + GridPane.getRowIndex(this.visual));
+        //change position inside object
         this.setPosition(emptyPos[0], emptyPos[1]);
         emptyPos = previous;
-        System.out.println("Empty " + emptyPos[0] + "-" + emptyPos[1] + ", Num" + this.name + " " + this.position[0] + "-" + this.position[1]);
+        //System.out.println("Empty " + emptyPos[0] + "-" + emptyPos[1] + ", Num" + this.name + " " + this.position[0] + "-" + this.position[1]);
         return true;
     }
 
+    //No solution with animation, but need to merge
     private void moveVisualTo(int column, int row) {
         // Calculate the destination coordinates
         double destinationX = column * BLOCK_SIZE;
@@ -173,6 +162,8 @@ public class Tile extends Pane {
         //System.out.println("Our x & y - " + transition.getFromX() + ", " + transition.getFromY());
         transition.setByX(destinationX);
         transition.setByY(destinationY);
+        System.out.println(transition.getByX());
+        System.out.println(transition.getByY());
         transition.play();
     }
 
